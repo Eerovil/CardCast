@@ -8,6 +8,7 @@ with open('config.json', 'r') as f:
 print(settings)
 
 def call(*args):
+    print("Calling chromecast: %s" % " ".join(args))
     subprocess.call([settings['chromecastCliPath'], '-H', settings['chromecastIP']] + list(args))
 
 call('status')
@@ -20,14 +21,18 @@ while True:
             for mapping in settings['cardMappings']:
                 if mapping['code'] == line:
                     found = True
-                    print("Playing %s" % mapping['name'])
-                    call('play', mapping['url'])
+                    if mapping['url'] == 'STOP':
+                        print("Stopping")
+                        call('stop', mapping['url'])
+                    else:
+                        print("Playing %s" % mapping['name'])
+                        call('play', mapping['url'])
 
             if not found:
                 print("No mapping found for code %s" % line)
                 for i in range(len(settings['cardMappings'])):
                     print("%i: %s" % (i, settings['cardMappings'][i]))
-                new = int(raw_input("Select new mapping"))
+                new = int(input("Select new mapping"))
                 settings['cardMappings'][new]['code'] = line
                 with open('config.json', 'w') as f:
                     json.dump(settings, f)
