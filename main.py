@@ -1,6 +1,7 @@
 import json
 import subprocess
 from keyboard import Reader
+from areena import Areena
 
 with open('config.json', 'r') as f:
     settings = json.load(f)
@@ -13,6 +14,8 @@ def call(*args):
 
 call('status')
 
+areena = Areena(settings['areena_key'])
+
 while True:
     try:
         with Reader('/dev/input/event0') as reader:
@@ -21,12 +24,20 @@ while True:
             for mapping in settings['cardMappings']:
                 if mapping['code'] == line:
                     found = True
-                    if mapping['url'] == 'STOP':
-                        print("Stopping")
-                        call('stop', mapping['url'])
-                    else:
-                        print("Playing %s" % mapping['name'])
-                        call('play', mapping['url'])
+                    call('stop')
+                    if 'url' in mapping:
+                        if mapping['url'] == 'STOP':
+                            print("Stopping")
+                        else:
+                            print("Playing %s" % mapping['name'])
+                            call('play', mapping['url'])
+                    elif 'areena_series' in mapping:
+                        if mapping['areena_series_type'] == 'latest':
+                            call('play', areena.get_series_url_latest(mapping['areena_series']))
+                        elif mapping['areena_series_type'] == 'play_all':
+                            call('play', *areena.get_series_url_all(mapping['areena_series']))
+                    elif 'areena_program' in mapping:
+                        call('play', areena.get_program_url(mapping['areena_program']))
 
             if not found:
                 print("No mapping found for code %s" % line)
