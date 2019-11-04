@@ -34,8 +34,8 @@ while True:
                     elif 'areena_series' in mapping:
                         if mapping['areena_series_type'] == 'latest':
                             call('play', areena.get_series_url_latest(mapping['areena_series']))
-                        elif mapping['areena_series_type'] == 'play_all':
-                            call('play', *areena.get_series_url_all(mapping['areena_series']))
+                        elif mapping['areena_series_type'] == 'random':
+                            call('play', areena.get_series_url_random(mapping['areena_series']))
                     elif 'areena_program' in mapping:
                         call('play', areena.get_program_url(mapping['areena_program']))
 

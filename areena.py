@@ -1,5 +1,6 @@
 import json
 import requests
+from random import randrange
 from yledl import yledl
 
 AREENA_URL = 'https://external.api.yle.fi/v1/'
@@ -18,22 +19,24 @@ class Areena():
             'programs/items.json?&'
             'series={series_id}&'
             'order=publication.starttime:desc&limit=1&'
+            'type=program&'
             'availability=ondemand'
         ).format(
             series_id=series_id
         ))
         return self.get_program_url(data['data'][0]['id'])
 
-    def get_series_url_all(self, series_id):
+    def get_series_url_random(self, series_id):
         data = self.api_call((
             'programs/items.json?&'
             'series={series_id}&'
             'order=publication.starttime:asc&limit=10&'
+            'type=program&'
             'availability=ondemand'
         ).format(
             series_id=series_id
         ))
-        return [self.get_program_url(item['id']) for item in data['data']]
+        return self.get_program_url(data['data'][randrange(len(data['data']) - 1)]['id'])
 
     def api_call(self, url):
         try:
