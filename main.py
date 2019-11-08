@@ -6,13 +6,22 @@ from areena import Areena
 with open('config.json', 'r') as f:
     settings = json.load(f)
 
+
 print(settings)
 
+currentfile = ""
+
 def call(*args):
+    global currentfile
+    if args[0] == 'stop':
+        currentfile = ""
+    if args[0] == 'play':
+        if args[1] == currentfile:
+            print('Not restarting same file')
+            return
+        currentfile = args[1]
     print("Calling chromecast: %s" % " ".join(args))
     subprocess.call([settings['chromecastCliPath'], '-H', settings['chromecastIP']] + list(args))
-
-call('status')
 
 areena = Areena(settings['areena_key'])
 
@@ -24,10 +33,10 @@ while True:
             for mapping in settings['cardMappings']:
                 if mapping['code'] == line:
                     found = True
-                    call('stop')
                     if 'url' in mapping:
                         if mapping['url'] == 'STOP':
                             print("Stopping")
+                            call('stop')
                         else:
                             print("Playing %s" % mapping['name'])
                             call('play', mapping['url'])
