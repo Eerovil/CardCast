@@ -9,19 +9,40 @@ with open('config.json', 'r') as f:
 
 print(settings)
 
-currentfile = ""
+currentmapping = ""
 
 def call(*args):
-    global currentfile
-    if args[0] == 'stop':
-        currentfile = ""
-    if args[0] == 'play':
-        if args[1] == currentfile:
-            print('Not restarting same file')
-            return
-        currentfile = args[1]
     print("Calling chromecast: %s" % " ".join(args))
     subprocess.call([settings['chromecastCliPath'], '-H', settings['chromecastIP']] + list(args))
+
+def handle_mapping(mapping):
+    global currentmapping
+    if 'url' in mapping and mapping['url'] == 'STOP':
+        print("Stopping")
+        currentmapping = ""
+        call('stop')
+        return
+
+    if mapping['code'] == currentmapping and mapping.get('areena_series_type', '') != 'random':
+        print("Not restarting same file")
+        return
+
+    currentmapping = mapping['code']
+
+    if 'url' in mapping:
+        print("Playing %s" % mapping['name'])
+        call('play', mapping['url'])
+        return
+    
+    # Stop here for better UX, since areena stuff has some delay with URL fetching
+    call('stop')
+    if 'areena_series' in mapping:
+        if mapping['areena_series_type'] == 'latest':
+            call('play', areena.get_series_url_latest(mapping['areena_series']))
+        elif mapping['areena_series_type'] == 'random':
+            call('play', areena.get_series_url_random(mapping['areena_series']))
+    elif 'areena_program' in mapping:
+        call('play', areena.get_program_url(mapping['areena_program']))
 
 areena = Areena(settings['areena_key'])
 
@@ -33,20 +54,7 @@ while True:
             for mapping in settings['cardMappings']:
                 if mapping['code'] == line:
                     found = True
-                    if 'url' in mapping:
-                        if mapping['url'] == 'STOP':
-                            print("Stopping")
-                            call('stop')
-                        else:
-                            print("Playing %s" % mapping['name'])
-                            call('play', mapping['url'])
-                    elif 'areena_series' in mapping:
-                        if mapping['areena_series_type'] == 'latest':
-                            call('play', areena.get_series_url_latest(mapping['areena_series']))
-                        elif mapping['areena_series_type'] == 'random':
-                            call('play', areena.get_series_url_random(mapping['areena_series']))
-                    elif 'areena_program' in mapping:
-                        call('play', areena.get_program_url(mapping['areena_program']))
+                    handle_mapping(mapping)
 
             if not found:
                 print("No mapping found for code %s" % line)
