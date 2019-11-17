@@ -1,5 +1,7 @@
 import json
 import subprocess
+from random import randrange
+
 from keyboard import Reader
 from areena import Areena
 
@@ -23,7 +25,7 @@ def handle_mapping(mapping):
         call('stop')
         return
 
-    if mapping['code'] == currentmapping and mapping.get('areena_series_type', '') != 'random':
+    if mapping['code'] == currentmapping and mapping.get('series_type', '') != 'random':
         print("Not restarting same file")
         return
 
@@ -34,12 +36,18 @@ def handle_mapping(mapping):
         call('play', mapping['url'])
         return
     
+    if 'series_urls' in mapping and mapping.get('series_type', '') == 'random':
+        print("Playing %s (random)" % mapping['name'])
+        index = randrange(len(mapping['series_urls']) - 1)
+        call('play', mapping['series_urls'][index])
+        return
+
     # Stop here for better UX, since areena stuff has some delay with URL fetching
     call('stop')
     if 'areena_series' in mapping:
-        if mapping['areena_series_type'] == 'latest':
+        if mapping['series_type'] == 'latest':
             call('play', areena.get_series_url_latest(mapping['areena_series']))
-        elif mapping['areena_series_type'] == 'random':
+        elif mapping['series_type'] == 'random':
             call('play', areena.get_series_url_random(mapping['areena_series']))
     elif 'areena_program' in mapping:
         call('play', areena.get_program_url(mapping['areena_program']))
