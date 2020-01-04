@@ -4,10 +4,30 @@ from random import randrange
 
 from keyboard import Reader
 from areena import Areena
+from dlna import parse_dlna
 
 with open('config.json', 'r') as f:
     settings = json.load(f)
 
+cleaned = []
+
+for title, url in parse_dlna().items():
+    for mapping in settings['cardMappings']:
+        if mapping.get('dlna_title', '') == title:
+            print("Found new url for %s: %s" % (title, url))
+            mapping['url'] = url
+        elif title in mapping.get('dlna_titles', []):
+            if mapping['name'] not in cleaned:
+                cleaned.append(mapping['name'])
+                mapping['series_urls'] = []
+            print("Found new url for %s: %s" % (title, url))
+            mapping['series_urls'].append(url)
+        elif title.startswith(mapping.get('dlna_series', '1234576').split('*')[0]):
+            if mapping['name'] not in cleaned:
+                cleaned.append(mapping['name'])
+                mapping['series_urls'] = []
+            print("Found new url for %s: %s" % (title, url))
+            mapping['series_urls'].append(url)
 
 print(settings)
 
@@ -71,7 +91,7 @@ while True:
                 new = int(input("Select new mapping"))
                 settings['cardMappings'][new]['code'] = line
                 with open('config.json', 'w') as f:
-                    json.dump(settings, f)
+                    json.dump(settings, f, indent=4, sort_keys=True)
 
                 print(settings['cardMappings'][new])
     except KeyboardInterrupt:
