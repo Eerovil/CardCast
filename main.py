@@ -1,5 +1,8 @@
 import json
 import subprocess
+import pychromecast
+from pychromecast.controllers.youtube import YouTubeController
+
 from random import randrange
 
 from keyboard import Reader
@@ -33,16 +36,21 @@ print(settings)
 
 currentmapping = ""
 
-def call(*args):
-    print("Calling chromecast: %s" % " ".join(args))
-    subprocess.call([settings['chromecastCliPath'], '-H', settings['chromecastIP']] + list(args))
+
+chromecasts = pychromecast.get_chromecasts()
+cast = next(cc for cc in chromecasts if cc.device.friendly_name == settings['chromecastName'])
+cast.wait()
+
+yt = YouTubeController()
+cast.register_handler(yt)
+
 
 def handle_mapping(mapping):
     global currentmapping
     if 'url' in mapping and mapping['url'] == 'STOP':
         print("Stopping")
         currentmapping = ""
-        call('stop')
+        cast.media_controller.stop()
         return
 
     if mapping['code'] == currentmapping and mapping.get('series_type', '') != 'random':
@@ -53,24 +61,29 @@ def handle_mapping(mapping):
 
     if 'url' in mapping:
         print("Playing %s" % mapping['name'])
-        call('play', mapping['url'])
+        cast.play_media(mapping['url'], 'video/mp4')
         return
     
     if 'series_urls' in mapping and mapping.get('series_type', '') == 'random':
         print("Playing %s (random)" % mapping['name'])
         index = randrange(len(mapping['series_urls']) - 1)
-        call('play', mapping['series_urls'][index])
+        cast.play_media(mapping['series_urls'][index], 'video/mp4')
+        return
+
+    if 'youtube_id' in mapping:
+        print('Playing youtube id %s' % mapping['youtube_id'])
+        yt.play_video(mapping['youtube_id'])
         return
 
     # Stop here for better UX, since areena stuff has some delay with URL fetching
-    call('stop')
+    cast.media_controller.stop()
     if 'areena_series' in mapping:
         if mapping['series_type'] == 'latest':
-            call('play', areena.get_series_url_latest(mapping['areena_series']))
+            cast.play_media(areena.get_series_url_latest(mapping['areena_series']), 'video/mp4')
         elif mapping['series_type'] == 'random':
-            call('play', areena.get_series_url_random(mapping['areena_series']))
+            cast.play_media(areena.get_series_url_random(mapping['areena_series']), 'video/mp4')
     elif 'areena_program' in mapping:
-        call('play', areena.get_program_url(mapping['areena_program']))
+        cast.play_media(areena.get_program_url(mapping['areena_program']), 'video/mp4')
 
 areena = Areena(settings['areena_key'])
 
