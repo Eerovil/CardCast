@@ -41,9 +41,6 @@ chromecasts = pychromecast.get_chromecasts()
 cast = next(cc for cc in chromecasts if cc.device.friendly_name == settings['chromecastName'])
 cast.wait()
 
-yt = YouTubeController()
-cast.register_handler(yt)
-
 
 def handle_mapping(mapping):
     global currentmapping
@@ -72,6 +69,8 @@ def handle_mapping(mapping):
 
     if 'youtube_id' in mapping:
         print('Playing youtube id %s' % mapping['youtube_id'])
+        yt = YouTubeController()
+        cast.register_handler(yt)
         yt.play_video(mapping['youtube_id'])
         return
 
