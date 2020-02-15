@@ -4,6 +4,7 @@ from pychromecast.controllers.youtube import YouTubeController
 
 from random import randrange
 
+from androidviewclient import Netflix
 from keyboard import Reader
 from areena import Areena
 from dlna import parse_dlna
@@ -77,6 +78,12 @@ def handle_mapping(mapping):
         yt.play_video(mapping["youtube_id"])
         return
 
+    if "netflix_search" in mapping:
+        print("Playing netflix search %s" % mapping["netflix_search"])
+        cast.media_controller.stop()
+        netflix.cast(mapping["netflix_search"])
+        return
+
     # Stop here for better UX, since areena stuff has some delay with URL fetching
     cast.media_controller.stop()
     if "areena_series" in mapping:
@@ -89,6 +96,7 @@ def handle_mapping(mapping):
 
 
 areena = Areena(settings["areena_key"])
+netflix = Netflix(chromecast_name=settings["chromecastName"])
 
 while True:
     try:
