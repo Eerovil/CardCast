@@ -14,6 +14,8 @@ with open("config.json", "r") as f:
 
 cleaned = []
 
+print("Parsing DLNA for new urls...")
+
 for title, url in parse_dlna(settings["dlnaServer"]).items():
     for mapping in settings["cardMappings"]:
         if mapping.get("dlna_title", "") == title:
@@ -32,10 +34,7 @@ for title, url in parse_dlna(settings["dlnaServer"]).items():
             print("Found new url for %s: %s" % (title, url))
             mapping["series_urls"].append(url)
 
-print(settings)
-
 currentmapping = ""
-
 
 cast = pychromecast.Chromecast(settings["chromecastIP"])
 cast.wait()
@@ -112,7 +111,10 @@ while True:
             if not found:
                 print("No mapping found for code %s" % line)
                 for i in range(len(settings["cardMappings"])):
-                    print("%i: %s" % (i, settings["cardMappings"][i]))
+                    print(
+                        "%i: %s"
+                        % (i, settings["cardMappings"][i].get("name", settings["cardMappings"][i]))
+                    )
                 new = int(input("Select new mapping"))
                 settings["cardMappings"][new]["code"] = line
                 with open("config.json", "w") as f:
