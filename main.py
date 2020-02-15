@@ -1,5 +1,4 @@
 import json
-import subprocess
 import pychromecast
 from pychromecast.controllers.youtube import YouTubeController
 
@@ -38,7 +37,7 @@ currentmapping = ""
 
 
 chromecasts = pychromecast.get_chromecasts()
-cast = next(cc for cc in chromecasts if cc.device.friendly_name == settings['chromecastName'])
+cast = pychromecast.Chromecast(settings['chromecastIP'])
 cast.wait()
 
 
@@ -50,7 +49,8 @@ def handle_mapping(mapping):
         cast.media_controller.stop()
         return
 
-    if mapping['code'] == currentmapping and mapping.get('series_type', '') != 'random' and 'youtube_id' not in mapping:
+    if (mapping['code'] == currentmapping and mapping.get('series_type', '') != 'random' and
+            'youtube_id' not in mapping):
         print("Not restarting same file")
         return
 
@@ -83,6 +83,7 @@ def handle_mapping(mapping):
             cast.play_media(areena.get_series_url_random(mapping['areena_series']), 'video/mp4')
     elif 'areena_program' in mapping:
         cast.play_media(areena.get_program_url(mapping['areena_program']), 'video/mp4')
+
 
 areena = Areena(settings['areena_key'])
 
