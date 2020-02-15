@@ -76,10 +76,10 @@ def handle_mapping(mapping):
         yt.play_video(mapping["youtube_id"])
         return
 
-    if "netflix_search" in mapping:
-        print("Playing netflix search %s" % mapping["netflix_search"])
+    if "netflix_url" in mapping:
+        print("Playing netflix search %s" % mapping["netflix_url"])
         cast.media_controller.stop()
-        netflix.cast(mapping["netflix_search"])
+        netflix.cast(mapping["netflix_url"])
         return
 
     # Stop here for better UX, since areena stuff has some delay with URL fetching

@@ -37,7 +37,7 @@ class Netflix:
         self.chromecast_name = chromecast_name
         self.connect_ip = connect_ip
 
-    def cast(self, search_term):
+    def cast(self, netflix_url):
         if self.connect_ip:
             subprocess.check_call(["adb", "connect", self.connect_ip])
 
@@ -58,11 +58,7 @@ class Netflix:
         vc.device.shell("input keyevent KEYCODE_WAKEUP")
 
         vc.device.shell("am force-stop com.netflix.mediaclient")
-        vc.device.startActivity(
-            "com.netflix.mediaclient/com.netflix.mediaclient.ui.launch.NetflixComLaunchActivity"
-        )
-
-        vc.dump(window="-1", sleep=2)
+        vc.device.shell("am start -a android.intent.action.VIEW -d {}".format(netflix_url))
 
         def _cast(**kwargs):
             vc.dump(window="-1", sleep=1)
@@ -72,23 +68,6 @@ class Netflix:
 
         loop_until(_cast, seconds=5, nofail=True)
 
-        def _search(firstrun):
-            vc.dump(window="-1", sleep=2)
-            if not firstrun:
-                vc.findViewByIdOrRaise("com.netflix.mediaclient:id/ab_menu_search_item").touch()
-                vc.dump(window="-1", sleep=2)
-
-            vc.setText((vc.findViewByIdOrRaise("android:id/search_src_text")), search_term)
-            vc.device.shell("input keyevent KEYCODE_BACK")
-
-        loop_until(_search)
-
-        def _clicksearch(**kwargs):
-            vc.dump(window="-1", sleep=1)
-            vc.findViewById("com.netflix.mediaclient:id/search_result_img").touch()
-
-        loop_until(_clicksearch)
-
         def _play(**kwargs):
             vc.dump(window="-1", sleep=1)
             vc.findViewById("com.netflix.mediaclient:id/video_img").touch()
@@ -96,3 +75,8 @@ class Netflix:
         loop_until(_play)
 
         vc.dump(window="-1", sleep=2)
+
+
+if __name__ == "__main__":
+    netflix = Netflix("Living Room Chromecast", connect_ip="192.168.100.13")
+    netflix.cast("https://www.netflix.com/watch/81101272")
