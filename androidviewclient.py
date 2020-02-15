@@ -75,7 +75,7 @@ class Netflix:
         def _search(firstrun):
             vc.dump(window="-1", sleep=2)
             if not firstrun:
-                vc.findViewWithContentDescriptionOrRaise(re.compile(u"""Haku""")).touch()
+                vc.findViewByIdOrRaise("com.netflix.mediaclient:id/ab_menu_search_item").touch()
                 vc.dump(window="-1", sleep=2)
 
             vc.setText((vc.findViewByIdOrRaise("android:id/search_src_text")), search_term)
