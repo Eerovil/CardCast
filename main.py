@@ -37,7 +37,6 @@ print(settings)
 currentmapping = ""
 
 
-chromecasts = pychromecast.get_chromecasts()
 cast = pychromecast.Chromecast(settings["chromecastIP"])
 cast.wait()
 
