@@ -22,7 +22,8 @@ Example config.json
 
 - `code` is the code your card reader will input (It should be detected as a keyboard input device)
 - `dlna_title` is used to update any changed urls using a upnp-client on restart
-- `inputDevice` is usually `/dev/input/event0`. Check it by disconnecting your reader, running `ls -l /dev/input`, then connecting it and running `ls -l /dev/input` again. This way you can see which device is your reader.
+- `inputDevice` is usually `/dev/input/event0`. Check it by disconnecting your reader, running `ls -l /dev/input`, then connecting it and running `ls -l /dev/input` again. This way you can see which device is your reader.,
+- `dlnaServer` The DLNA server ip:port. Only one is currently supported.
 - Others should be more or less self-explainatory
 
 ```
@@ -64,6 +65,7 @@ Example config.json
     ],
     "chromecastIP": "192.168.100.18",
     "chromecastName": "Living Room Chromecast",
-    "inputDevice": "/dev/input/event0"
+    "inputDevice": "/dev/input/event0",
+    "dlnaServer": "127.0.0.1:8200"
 }
 ```

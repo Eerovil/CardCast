@@ -14,7 +14,7 @@ with open("config.json", "r") as f:
 
 cleaned = []
 
-for title, url in parse_dlna().items():
+for title, url in parse_dlna(settings["dlnaServer"]).items():
     for mapping in settings["cardMappings"]:
         if mapping.get("dlna_title", "") == title:
             print("Found new url for %s: %s" % (title, url))

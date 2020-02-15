@@ -2,13 +2,13 @@ import upnpclient
 import xml.etree.ElementTree as ET
 
 
-def parse_dlna():
+def parse_dlna(dlna_server):
     """
     Return a dict of title: url from dlna
     """
     res = [
         s
-        for s in upnpclient.Device("http://127.0.0.1:8200/rootDesc.xml").services
+        for s in upnpclient.Device("http://{}/rootDesc.xml".format(dlna_server)).services
         if s.name == "ContentDirectory"
     ][0].Browse(
         ObjectID="2$8",
