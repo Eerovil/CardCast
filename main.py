@@ -100,7 +100,7 @@ netflix = Netflix(chromecast_name=settings["chromecastName"])
 
 while True:
     try:
-        with Reader("/dev/input/event0") as reader:
+        with Reader(settings["inputDevice"]) as reader:
             line = reader.read()
             found = False
             for mapping in settings["cardMappings"]:

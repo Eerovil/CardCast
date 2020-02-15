@@ -1,3 +1,9 @@
+"""
+Use Yle areena API to fetch media urls ready for playing with the chromecast
+mediaplayer app.
+"""
+
+
 import requests
 from random import randrange
 from yledl import yledl
