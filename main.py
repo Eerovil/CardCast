@@ -96,7 +96,9 @@ def handle_mapping(mapping):
 
 
 areena = Areena(settings["areena_key"])
-netflix = Netflix(chromecast_name=settings["chromecastName"])
+netflix = Netflix(
+    chromecast_name=settings["chromecastName"], connect_ip=settings.get("adbConnect", None)
+)
 
 while True:
     try:

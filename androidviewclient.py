@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+import subprocess
 import re
 import traceback
 from time import sleep, time
@@ -32,10 +33,13 @@ def loop_until(func, seconds=15, nofail=False):
 
 
 class Netflix:
-    def __init__(self, chromecast_name):
+    def __init__(self, chromecast_name, connect_ip=None):
         self.chromecast_name = chromecast_name
+        self.connect_ip = connect_ip
 
     def cast(self, search_term):
+        if self.connect_ip:
+            subprocess.check_call(["adb", "connect", self.connect_ip])
 
         kwargs1 = {"verbose": False, "ignoresecuredevice": False, "ignoreversioncheck": False}
         device, serialno = ViewClient.connectToDeviceOrExit(**kwargs1)
