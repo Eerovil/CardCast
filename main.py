@@ -50,7 +50,7 @@ def handle_mapping(mapping):
         cast.media_controller.stop()
         return
 
-    if mapping['code'] == currentmapping and mapping.get('series_type', '') != 'random':
+    if mapping['code'] == currentmapping and mapping.get('series_type', '') != 'random' and 'youtube_id' not in mapping:
         print("Not restarting same file")
         return
 
